@@ -9,7 +9,7 @@ import google.generativeai as genai
 from functions.mentor_prompt_builder import get_system_prompt
 from functions.finance_analyzer import analyze_financial_data
 from functions.fi_data import get_fi_data
-from typing import Optional, Dict, Any
+from typing import Optional
 import time
 
 load_dotenv()
@@ -18,7 +18,6 @@ logger = get_logger(__name__)
 
 class FinancialMentorRequest(BaseModel):
     id: str
-    financialData: Dict[str, Any]
     message: Optional[str] = "Analyze my financial behavior and provide mentorship advice"
 
 class FinancialMentorResponse(BaseModel):
@@ -101,7 +100,7 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
             user_id=request.id,
             session_id=session_id,
             question=request.message,
-            financial_data=request.financialData,
+            financial_data=financial_data,
             analysis="",
             mentor_response=mentor_response,
             model="gemini-2.5-flash",

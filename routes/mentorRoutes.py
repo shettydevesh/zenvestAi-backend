@@ -9,7 +9,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class FinancialMentorRequest(BaseModel):
     id: str
-    financialData: Dict[str, Any]
     message: Optional[str] = "Analyze my financial behavior and provide mentorship advice"
 
 
