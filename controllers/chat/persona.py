@@ -32,7 +32,7 @@ class ChatResponse(BaseModel):
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-async def persona_chat(request: ChatRequest):
+async def persona_chat(request: ChatRequest, user_id:str):
     request_id = random.randint(3, 99999)
     db = get_db()
 
@@ -40,7 +40,7 @@ async def persona_chat(request: ChatRequest):
     conversation_id = request.conversation_id or f"conv_{request.id}_{int(time.time())}"
 
     logger.info(
-        f"Chat API called | User ID: {request.id} | Message length: {len(request.message)} chars | "
+        f"Chat API called | User ID: {user_id} | Message length: {len(request.message)} chars | "
         f"Conversation ID: {conversation_id} | Request ID: {request_id}",
         extra={"request_id": request_id, "user_id": request.id, "endpoint": "/api/v1/chat"}
     )
@@ -53,7 +53,7 @@ async def persona_chat(request: ChatRequest):
         if not existing_conversation:
             logger.info(f"Creating new conversation | ID: {conversation_id} | Request ID: {request_id}", extra={"request_id": request_id})
             db.create_conversation(
-                user_id=request.id,
+                user_id=user_id,
                 conversation_id=conversation_id,
                 persona="sharan",
                 title=request.message[:100] if len(request.message) <= 100 else request.message[:97] + "..."
@@ -140,9 +140,9 @@ async def persona_chat(request: ChatRequest):
             )
 
         logger.info(
-            f"Chat response generated and saved | User ID: {request.id} | Response length: {len(response_text)} chars | "
+            f"Chat response generated and saved | User ID: {user_id} | Response length: {len(response_text)} chars | "
             f"Conversation ID: {conversation_id} | Request ID: {request_id}",
-            extra={"request_id": request_id, "user_id": request.id, "response_length": len(response_text)}
+            extra={"request_id": request_id, "user_id": user_id, "response_length": len(response_text)}
         )
 
         return ChatResponse(
@@ -159,6 +159,11 @@ async def persona_chat(request: ChatRequest):
             exc_info=True,
             extra=extra
         )
-        kwargs = {"request_id": request_id, "user_id": request.id}
+        kwargs = {"request_id": request_id, "user_id": user_id}
         logger.error(f"Error context: {kwargs}", extra=extra)
-        return None
+        return ChatResponse(
+            id=request.id,
+            response="Something went wrong, so I will take a quick break till then.",
+            model="gemini-2.5-flash",
+            conversation_id=conversation_id
+        )
