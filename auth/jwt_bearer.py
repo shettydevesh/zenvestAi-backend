@@ -3,15 +3,18 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from jose import jwt, JWTError
 from dotenv import load_dotenv
+from config.global_logger import get_logger
 import os
 
+logger = get_logger(__name__)
 load_dotenv()
 
 def verify_token(token: str) -> Optional[dict]:
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=[os.getenv("ALGORITHM", "HS256")])
+        payload = jwt.decode(token, os.getenv("SECRET_KEY"), audience=os.getenv("JWT_AUDIENCE", "https://zenvest.in/"), issuer=os.getenv("JWT_ISSUER", "https://zenvest.in/api"))
         return payload
     except JWTError:
+        logger.error(f"Error while verifying jwt: {JWTError}", exc_info=True)
         return None
 
 class JWTBearer(HTTPBearer):
