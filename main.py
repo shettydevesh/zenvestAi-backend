@@ -88,3 +88,7 @@ async def log_requests(request: Request, call_next):
             }
         )
         raise
+
+@app.get("/")
+async def root():
+    return {"message": "API is running"}
