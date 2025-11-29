@@ -22,6 +22,7 @@ class FinancialMentorRequest(BaseModel):
 
 class FinancialMentorResponse(BaseModel):
     id: str
+    user_id: str
     mentorResponse: str
     model: str = "gemini-2.5-flash"
 
@@ -42,7 +43,6 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
         # Step 1: Validate and analyze financial data
         logger.info(f"Step 1: Getting financial Data | Request ID: {request_id}", extra={"request_id": request_id})
         data = analyze_financial_data(financial_data)
-        logger.info(f"Data: {data}")
         #Step 2: Build system prompt
         logger.info(f"Step 2: Building System Prompt | Request ID: {request_id}", extra={"request_id": request_id})
         system_prompt = get_system_prompt(data)
@@ -66,7 +66,7 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
 
             # Initialize Gemini model with financial mentor persona
             model = genai.GenerativeModel(
-                model_name='gemini-2.5-flash',
+                model_name='gemini-2.5-pro',
                 system_instruction=system_prompt,
                 generation_config=generation_config
             )
@@ -116,6 +116,7 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
 
         return FinancialMentorResponse(
             id=request.id,
+            user_id=user_id,
             mentorResponse=mentor_response,
             model="gemini-2.5-flash",
         )
@@ -129,4 +130,4 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
         )
         kwargs = {"request_id": request_id, "user_id": request.id}
         logger.error(f"Error context: {kwargs}", extra=extra)
-        return FinancialMentorResponse(id=request.id, mentorResponse="Sorry, something went wrong, so I will be on a break", model="gemini-2.5-flash",)
+        return FinancialMentorResponse(id=request.id, user_id=user_id, mentorResponse="Sorry, something went wrong, so I will be on a break", model="gemini-2.5-flash",)

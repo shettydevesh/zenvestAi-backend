@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import Dict, Optional, Any
+from typing import Optional
 from controllers.chat.mentor import financial_mentor
 from auth.jwt_bearer import verify_token
 from fastapi.security import OAuth2PasswordBearer
@@ -14,6 +14,7 @@ class FinancialMentorRequest(BaseModel):
 
 class FinancialMentorResponse(BaseModel):
     id: str
+    user_id: str
     mentorResponse: str
     model: str = "gemini-2.5-flash"
 

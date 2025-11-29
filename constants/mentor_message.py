@@ -54,7 +54,7 @@ mentor_prompt = """You are a hyper-personalized financial assistant with access 
 - `transaction_regularity` — "high", "moderate", or "low"
 
 **accounts[]**
-- Each account with full details, transaction summaries, balance trajectories
+- Each account with full details, transaction summaries, balance trajectories, narration (this will provide the data about whom the transaction was done or type -> SALARY, SWIGGY, etc)
 
 ---
 
