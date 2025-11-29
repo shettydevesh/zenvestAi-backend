@@ -272,6 +272,7 @@ def analyze_behavioral_patterns(all_transactions: list) -> dict:
                 "amount": safe_float(txn.get("amount", 0)),
                 "mode": txn.get("mode"),
                 "type": txn.get("type"),
+                "narration": txn.get("narration"),
                 "weekday": ts.weekday(),
                 "hour": ts.hour,
                 "day_of_month": ts.day
@@ -305,10 +306,21 @@ def analyze_behavioral_patterns(all_transactions: list) -> dict:
 
     frequent_days = [day for day, count in day_counts.items() if count >= 3]
 
+    narration_data = defaultdict(int)
+    narration_amount_data = defaultdict(int)
     # Payment mode preferences
     mode_counts = defaultdict(int)
     for t in parsed:
         mode_counts[t["mode"]] += 1
+
+    for t in parsed:
+        narration = t["narration"]
+        amount = t["amount"]
+        if(narration):
+            data = narration.split("/")
+            key = " - ".join(data[2:-2])
+            narration_data[key] += 1
+            narration_amount_data[key] += amount
 
     total_txns = len(parsed)
     preferred_mode = max(mode_counts, key=mode_counts.get) if mode_counts else "UNKNOWN"
@@ -327,7 +339,9 @@ def analyze_behavioral_patterns(all_transactions: list) -> dict:
         "recurring_payment_days": sorted(frequent_days),
         "preferred_payment_mode": preferred_mode,
         "payment_mode_distribution": mode_percentages,
-        "total_analyzed_transactions": total_txns
+        "total_analyzed_transactions": total_txns,
+        "receipent_count_data": narration_data,
+        "receipent_amount_data": narration_amount_data
     }
 
 
