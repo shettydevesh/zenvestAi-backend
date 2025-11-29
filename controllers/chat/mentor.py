@@ -43,6 +43,7 @@ async def financial_mentor(request: FinancialMentorRequest, user_id: str):
         # Step 1: Validate and analyze financial data
         logger.info(f"Step 1: Getting financial Data | Request ID: {request_id}", extra={"request_id": request_id})
         data = analyze_financial_data(financial_data)
+        # logger.info(f"Data: {data}")
         #Step 2: Build system prompt
         logger.info(f"Step 2: Building System Prompt | Request ID: {request_id}", extra={"request_id": request_id})
         system_prompt = get_system_prompt(data)

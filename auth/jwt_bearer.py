@@ -11,7 +11,7 @@ load_dotenv()
 
 def verify_token(token: str) -> Optional[dict]:
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY"), audience=os.getenv("JWT_AUDIENCE", "https://zenvest.in/"), issuer=os.getenv("JWT_ISSUER", "https://zenvest.in/api"))
+        payload = jwt.decode(token, os.getenv("SECRET_KEY"))
         return payload
     except JWTError:
         logger.error(f"Error while verifying jwt: {JWTError}", exc_info=True)
