@@ -1,27 +1,19 @@
 from config.database import supabase
 from datetime import datetime, date
 from collections import defaultdict
+from config.global_logger import get_logger
 import uuid
 
+
+logger = get_logger(__name__)
 
 def get_fi_data(
     user_id: str,
     data_to: str = None
 ) -> dict:
-    """
-    Fetch financial data and return in FI_DATA_READY format.
-    Never returns None - always returns a valid structure.
-
-    Args:
-        user_id: The user's UUID
-        data_to: End date (YYYY-MM-DD), defaults to today
-
-    Returns:
-        dict: FI_DATA_READY formatted response (never None)
-    """
     if data_to is None:
         data_to = date.today().isoformat()
-
+    logger.info(f"User ID: {user_id}")
     try:
         # Fetch accounts
         accounts_response = (
@@ -36,11 +28,10 @@ def get_fi_data(
             return _empty_response(data_to)
 
         # Fetch transactions (no start date filter - get all from beginning)
-        account_ids = [acc['id'] for acc in accounts if acc.get('id')]
+        account_ids = sorted([acc['id'] for acc in accounts if acc.get('id')])
 
         if not account_ids:
             return _empty_response(data_to)
-
         txn_response = (
             supabase.table('account_transactions')
             .select('*')
@@ -56,7 +47,6 @@ def get_fi_data(
         for txn in (txn_response.data or []):
             if txn and txn.get('account_id'):
                 txn_by_account[txn['account_id']].append(txn)
-
         # Determine the earliest transaction date for data_from
         all_txns = txn_response.data or []
         if all_txns and all_txns[0].get('transaction_timestamp'):
